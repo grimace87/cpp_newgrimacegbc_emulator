@@ -118,7 +118,7 @@ public:
 
     // Other public functions
     void Begin();
-    void LoadROM(const wchar_t*, HWND);
+    bool LoadROM(const wchar_t*, HWND);
     void Reset();
     void Close();
 

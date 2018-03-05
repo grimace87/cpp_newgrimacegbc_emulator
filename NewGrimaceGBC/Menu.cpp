@@ -84,7 +84,7 @@ void MenuUtil::AddGGBCMenu(HWND hWnd, HINSTANCE hInstance) {
 LRESULT CALLBACK MenuUtil::Command(HWND hWnd, WORD Comm) {
 
     static OPENFILENAME* ofn;
-    static wchar_t namebuff[256];
+    static wchar_t namebuff[512];
 
     switch (Comm) {
     case MID_EXIT:
@@ -100,7 +100,7 @@ LRESULT CALLBACK MenuUtil::Command(HWND hWnd, WORD Comm) {
             0, // nMaxCustFilter
             1, // nFilterIndex
             namebuff, // lpstrFile
-            256, // nMaxFile
+            512, // nMaxFile
             NULL, // lpstrFileTitle
             0, // nMaxFileTitle
             NULL, // lpstrInitialDir
@@ -118,14 +118,15 @@ LRESULT CALLBACK MenuUtil::Command(HWND hWnd, WORD Comm) {
             0 // FlagsEx
             #endif
         };
-        if (GetOpenFileName (ofn)) {
-            ggbc1.Close();
-            ggbc1.LoadROM (namebuff, hWnd);
-            if (ggbc1.ROM_Valid) {
-                if (hDebugWindow != NULL)
-                    LoadROMDetails (&ggbc1);
-                ggbc1.Begin();
-            }
+		if (GetOpenFileName(ofn)) {
+			ggbc1.Close();
+			if (ggbc1.LoadROM(namebuff, hWnd)) {
+				if (ggbc1.ROM_Valid) {
+					if (hDebugWindow != NULL)
+						LoadROMDetails(&ggbc1);
+					ggbc1.Begin();
+				}
+			}
         }
         delete ofn;
         break;

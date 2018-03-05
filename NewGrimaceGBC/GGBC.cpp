@@ -42,6 +42,40 @@ const unsigned char OfficialNintendoLogo[48] = {
     0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e
 };
 
+void saveLastFileName(const wchar_t* path, int buffSize) {
+
+	// Attempt to read running path
+	wchar_t localPath[512];
+	int size = GetModuleFileNameW(NULL, localPath, buffSize);
+	if (size == 0) return;
+
+	// FInd last '\' character and put the config filename after that
+	int foundIndex = -1;
+	for (int t = 0; t < buffSize; t++) {
+		if (localPath[t] == L'\\')
+			foundIndex = t;
+		else if (localPath[t] == L'\0')
+			break;
+	}
+	if (foundIndex < 0) return;
+	if (foundIndex > buffSize - 9) return;
+
+	// Append characters
+	foundIndex++;
+	const wchar_t* configFile = L"conf.gcf";
+	for (int i = 0; i < 9; i++)
+		localPath[foundIndex + i] = configFile[i];
+
+	// Open file and write to it
+	FILE* file;
+	_wfopen_s(&file, localPath, L"w");
+	if (file == NULL) return;
+	int length = lstrlenW(path) + 1;
+	size_t read = fwrite((void*) path, 2, length, file);
+	fclose(file);
+
+}
+
 GGBC::GGBC() {
 
     // Flag not running and no ROM loaded
@@ -138,7 +172,7 @@ DWORD WINAPI GGBC::RunProc(LPVOID GGBCObj) {
 
 }
 
-void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
+bool GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
 
     FILE *FilePtr;
     unsigned char NintendoLogo[49];
@@ -154,7 +188,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
     if (FilePtr == NULL) {
         MessageBox (hWnd, L"Couldn't open ROM file.", L"Error", MB_OK);
         ROM_Valid = FALSE;
-        return;
+        return false;
     }
 
     // Read ROM header. Starts at 0x0100 with NOP and a jump (usually to 0x0150, after the header) (total 4 bytes)
@@ -229,7 +263,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
             MessageBox (hWnd, L"Cartridge type is not supported.", L"Error", MB_OK);
             ROM_Valid = FALSE;
             fclose (FilePtr);
-            return;
+            return false;
     }
 
     switch (ROM_ROMSize) {
@@ -248,7 +282,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
             MessageBox (hWnd, L"ROM has invalid size indicator.", L"Error", MB_OK);
             ROM_Valid = FALSE;
             fclose (FilePtr);
-            return;
+            return false;
     }
     switch (ROM_RAMSize) {
         case 0x00:
@@ -263,7 +297,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
             MessageBox (hWnd, L"ROM has invalid external\nRAM size indicator.", L"Error", MB_OK);
             ROM_Valid = FALSE;
             fclose (FilePtr);
-            return;
+            return false;
     }
 
     if (ROM_HasBattery) {
@@ -284,7 +318,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
                 MessageBox (hWnd, L"Save file does not exist and\ncould not be created.", L"Error", MB_OK);
                 ROM_Valid = FALSE;
                 fclose (FilePtr);
-                return;
+                return false;
             }
             else
                 MessageBox (hWnd, L"New .gsv save file was created.", L"Note", MB_OK);
@@ -361,7 +395,7 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
         MessageBox (hWnd, L"ROM appears incomplete.", L"Error", MB_OK);
         ROM_Valid = FALSE;
         fclose (FilePtr);
-        return;
+        return false;
     }
     if (ROMFileSize > 4194304) {
         MessageBox (hWnd, L"ROM file is unusually large.\nOmitting extra data.", L"Note", MB_OK);
@@ -370,7 +404,10 @@ void GGBC::LoadROM(const wchar_t *FileName, HWND hWnd) {
     fread (ROM, 1, ROMFileSize, FilePtr);
     fclose (FilePtr);
 
-    return;
+	// Save that this was opened
+	saveLastFileName(FileName, 512);
+
+    return true;
 
 }
 
