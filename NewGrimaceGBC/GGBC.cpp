@@ -90,12 +90,14 @@ GGBC::GGBC() {
     VRAM = new unsigned char [2*8192];
     IOPorts = new unsigned char [256];
     TileSet = new unsigned int [2*384*8*8]; // 2 VRAM banks, 384 tiles, 8 rows, 8 pixels per row
-    SGB_Palettes = new GLfloat[4*4*3];
-    SGB_SYSPalettes  = new GLfloat [512*4*3]; // 512 palettes, 4 colours per palette, RGB
+	SGB_MonoData = new unsigned int[160 * 152];
+    SGB_Palettes = new GLuint[4*4];
+    SGB_SYSPalettes  = new GLuint [512*4]; // 512 palettes, 4 colours per palette, RGB
     SGB_CHRPalettes = new unsigned int[18*20];
 
     // Clear things that should be cleared
-    ZeroMemory(TileSet, 2*384*8*8*sizeof(unsigned int));
+	ZeroMemory(TileSet, 2 * 384 * 8 * 8 * sizeof(unsigned int));
+	ZeroMemory(SGB_CHRPalettes, 18 * 20 * sizeof(unsigned int));
 
 }
 
@@ -108,6 +110,7 @@ GGBC::~GGBC() {
     delete[] VRAM;
     delete[] IOPorts;
     delete[] TileSet;
+	delete[] SGB_MonoData;
     delete[] SGB_SYSPalettes;
     delete[] SGB_Palettes;
     delete[] SGB_CHRPalettes;

@@ -211,8 +211,9 @@ private:
 
     // Block memory
     unsigned int* TileSet;
-    GLfloat *SGB_Palettes;
-    GLfloat* SGB_SYSPalettes;
+	unsigned int* SGB_MonoData;
+    GLuint* SGB_Palettes;
+    GLuint* SGB_SYSPalettes;
 
     // Other variables
     unsigned int LastLYCompare;

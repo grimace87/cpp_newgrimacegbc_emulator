@@ -53,7 +53,7 @@ void GGBC::SGBCheckPackets() {
 
     unsigned int CtrlCode, DataGroups, GroupNo, PacketNo, ByteNo;
     unsigned int p, c, dp;
-    GLfloat PalCol;
+    GLfloat PalCollar;
     
     unsigned int xLeft, xRight, yTop, yBottom;
     unsigned int x, y;
@@ -61,160 +61,80 @@ void GGBC::SGBCheckPackets() {
 
     switch (SGB_Command) {
         case SGBCOM_PAL01:
-            SentDataSets = (SGB_CommandBytes[0][2]<<8) + SGB_CommandBytes[0][1];
-            SGB_Palettes[0] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[1] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[2] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
+            SentDataSets = (SGB_CommandBytes[0][2] << 8) | SGB_CommandBytes[0][1];
+            SGB_Palettes[0] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+            SGB_Palettes[4] = SGB_Palettes[0];
+            SGB_Palettes[8] = SGB_Palettes[0];
             SGB_Palettes[12] = SGB_Palettes[0];
-            SGB_Palettes[13] = SGB_Palettes[1];
-            SGB_Palettes[14] = SGB_Palettes[2];
-            SGB_Palettes[24] = SGB_Palettes[0];
-            SGB_Palettes[25] = SGB_Palettes[1];
-            SGB_Palettes[26] = SGB_Palettes[2];
-            SGB_Palettes[36] = SGB_Palettes[0];
-            SGB_Palettes[37] = SGB_Palettes[1];
-            SGB_Palettes[38] = SGB_Palettes[2];
-            SentDataSets = (SGB_CommandBytes[0][4]<<8) + SGB_CommandBytes[0][3];
-            SGB_Palettes[3] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[4] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[5] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][6]<<8) + SGB_CommandBytes[0][5];
-            SGB_Palettes[6] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[7] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[8] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][8]<<8) + SGB_CommandBytes[0][7];
-            SGB_Palettes[9] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[10] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[11] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][10]<<8) + SGB_CommandBytes[0][9];
-            SGB_Palettes[15] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[16] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[17] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][12]<<8) + SGB_CommandBytes[0][11];
-            SGB_Palettes[18] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[19] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[20] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][14]<<8) + SGB_CommandBytes[0][13];
-            SGB_Palettes[21] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[22] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[23] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
+			SentDataSets = (SGB_CommandBytes[0][4] << 8) + SGB_CommandBytes[0][3];
+			SGB_Palettes[1] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][6] << 8) + SGB_CommandBytes[0][5];
+			SGB_Palettes[2] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][8] << 8) + SGB_CommandBytes[0][7];
+			SGB_Palettes[3] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][10] << 8) + SGB_CommandBytes[0][9];
+			SGB_Palettes[5] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][12] << 8) + SGB_CommandBytes[0][11];
+			SGB_Palettes[6] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][14] << 8) + SGB_CommandBytes[0][13];
+			SGB_Palettes[7] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
             break;
         case SGBCOM_PAL23:
-            SentDataSets = (SGB_CommandBytes[0][2]<<8) + SGB_CommandBytes[0][1];
-            SGB_Palettes[0] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[1] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[2] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SGB_Palettes[12] = SGB_Palettes[0];
-            SGB_Palettes[13] = SGB_Palettes[1];
-            SGB_Palettes[14] = SGB_Palettes[2];
-            SGB_Palettes[24] = SGB_Palettes[0];
-            SGB_Palettes[25] = SGB_Palettes[1];
-            SGB_Palettes[26] = SGB_Palettes[2];
-            SGB_Palettes[36] = SGB_Palettes[0];
-            SGB_Palettes[37] = SGB_Palettes[1];
-            SGB_Palettes[38] = SGB_Palettes[2];
-            SentDataSets = (SGB_CommandBytes[0][4]<<8) + SGB_CommandBytes[0][3];
-            SGB_Palettes[27] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[28] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[29] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][6]<<8) + SGB_CommandBytes[0][5];
-            SGB_Palettes[30] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[31] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[32] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][8]<<8) + SGB_CommandBytes[0][7];
-            SGB_Palettes[33] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[34] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[35] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][10]<<8) + SGB_CommandBytes[0][9];
-            SGB_Palettes[39] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[40] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[41] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][12]<<8) + SGB_CommandBytes[0][11];
-            SGB_Palettes[42] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[43] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[44] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][14]<<8) + SGB_CommandBytes[0][13];
-            SGB_Palettes[45] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[46] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[47] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
+			SentDataSets = (SGB_CommandBytes[0][2] << 8) + SGB_CommandBytes[0][1];
+			SGB_Palettes[0] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SGB_Palettes[4] = SGB_Palettes[0];
+			SGB_Palettes[8] = SGB_Palettes[0];
+			SGB_Palettes[12] = SGB_Palettes[0];
+			SentDataSets = (SGB_CommandBytes[0][4] << 8) + SGB_CommandBytes[0][3];
+			SGB_Palettes[9] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][6] << 8) + SGB_CommandBytes[0][5];
+			SGB_Palettes[10] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][8] << 8) + SGB_CommandBytes[0][7];
+			SGB_Palettes[11] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][10] << 8) + SGB_CommandBytes[0][9];
+			SGB_Palettes[13] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][12] << 8) + SGB_CommandBytes[0][11];
+			SGB_Palettes[14] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][14] << 8) + SGB_CommandBytes[0][13];
+			SGB_Palettes[15] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
             break;
         case SGBCOM_PAL03:
-            SentDataSets = (SGB_CommandBytes[0][2]<<8) + SGB_CommandBytes[0][1];
-            SGB_Palettes[0] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[1] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[2] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SGB_Palettes[12] = SGB_Palettes[0];
-            SGB_Palettes[13] = SGB_Palettes[1];
-            SGB_Palettes[14] = SGB_Palettes[2];
-            SGB_Palettes[24] = SGB_Palettes[0];
-            SGB_Palettes[25] = SGB_Palettes[1];
-            SGB_Palettes[26] = SGB_Palettes[2];
-            SGB_Palettes[36] = SGB_Palettes[0];
-            SGB_Palettes[37] = SGB_Palettes[1];
-            SGB_Palettes[38] = SGB_Palettes[2];
-            SentDataSets = (SGB_CommandBytes[0][4]<<8) + SGB_CommandBytes[0][3];
-            SGB_Palettes[3] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[4] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[5] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][6]<<8) + SGB_CommandBytes[0][5];
-            SGB_Palettes[6] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[7] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[8] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][8]<<8) + SGB_CommandBytes[0][7];
-            SGB_Palettes[9] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[10] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[11] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][10]<<8) + SGB_CommandBytes[0][9];
-            SGB_Palettes[39] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[40] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[41] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][12]<<8) + SGB_CommandBytes[0][11];
-            SGB_Palettes[42] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[43] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[44] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][14]<<8) + SGB_CommandBytes[0][13];
-            SGB_Palettes[45] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[46] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[47] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
+			SentDataSets = (SGB_CommandBytes[0][2] << 8) + SGB_CommandBytes[0][1];
+			SGB_Palettes[0] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SGB_Palettes[4] = SGB_Palettes[0];
+			SGB_Palettes[8] = SGB_Palettes[0];
+			SGB_Palettes[12] = SGB_Palettes[0];
+			SentDataSets = (SGB_CommandBytes[0][4] << 8) + SGB_CommandBytes[0][3];
+			SGB_Palettes[1] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][6] << 8) + SGB_CommandBytes[0][5];
+			SGB_Palettes[2] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][8] << 8) + SGB_CommandBytes[0][7];
+			SGB_Palettes[3] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][10] << 8) + SGB_CommandBytes[0][9];
+			SGB_Palettes[13] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][12] << 8) + SGB_CommandBytes[0][11];
+			SGB_Palettes[14] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][14] << 8) + SGB_CommandBytes[0][13];
+			SGB_Palettes[15] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
             break;
         case SGBCOM_PAL12:
-            SentDataSets = (SGB_CommandBytes[0][2]<<8) + SGB_CommandBytes[0][1];
-            SGB_Palettes[0] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[1] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[2] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SGB_Palettes[12] = SGB_Palettes[0];
-            SGB_Palettes[13] = SGB_Palettes[1];
-            SGB_Palettes[14] = SGB_Palettes[2];
-            SGB_Palettes[24] = SGB_Palettes[0];
-            SGB_Palettes[25] = SGB_Palettes[1];
-            SGB_Palettes[26] = SGB_Palettes[2];
-            SGB_Palettes[36] = SGB_Palettes[0];
-            SGB_Palettes[37] = SGB_Palettes[1];
-            SGB_Palettes[38] = SGB_Palettes[2];
-            SentDataSets = (SGB_CommandBytes[0][4]<<8) + SGB_CommandBytes[0][3];
-            SGB_Palettes[15] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[16] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[17] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][6]<<8) + SGB_CommandBytes[0][5];
-            SGB_Palettes[18] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[19] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[20] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][8]<<8) + SGB_CommandBytes[0][7];
-            SGB_Palettes[21] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[22] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[23] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][10]<<8) + SGB_CommandBytes[0][9];
-            SGB_Palettes[27] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[28] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[29] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][12]<<8) + SGB_CommandBytes[0][11];
-            SGB_Palettes[30] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[31] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[32] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
-            SentDataSets = (SGB_CommandBytes[0][14]<<8) + SGB_CommandBytes[0][13];
-            SGB_Palettes[33] = (GLfloat)(SentDataSets & 0x001f) / 31;
-            SGB_Palettes[34] = (GLfloat)(SentDataSets & 0x03e0) / 992;
-            SGB_Palettes[35] = (GLfloat)(SentDataSets & 0x7c00) / 31744;
+			SentDataSets = (SGB_CommandBytes[0][2] << 8) + SGB_CommandBytes[0][1];
+			SGB_Palettes[0] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SGB_Palettes[4] = SGB_Palettes[0];
+			SGB_Palettes[8] = SGB_Palettes[0];
+			SGB_Palettes[12] = SGB_Palettes[0];
+			SentDataSets = (SGB_CommandBytes[0][4] << 8) + SGB_CommandBytes[0][3];
+			SGB_Palettes[5] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][6] << 8) + SGB_CommandBytes[0][5];
+			SGB_Palettes[6] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][8] << 8) + SGB_CommandBytes[0][7];
+			SGB_Palettes[7] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][10] << 8) + SGB_CommandBytes[0][9];
+			SGB_Palettes[9] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][12] << 8) + SGB_CommandBytes[0][11];
+			SGB_Palettes[10] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
+			SentDataSets = (SGB_CommandBytes[0][14] << 8) + SGB_CommandBytes[0][13];
+			SGB_Palettes[11] = ((SentDataSets & 0x001f) << 27) | ((SentDataSets & 0x03e0) << 14) | ((SentDataSets & 0x7c00) << 1) | 0x000000ff;
             break;
         case SGBCOM_ATTR_BLK:
             // Get number of data groups
@@ -403,11 +323,9 @@ void GGBC::SGBCheckPackets() {
                 dp *= 256;
                 dp += (unsigned int)(SGB_CommandBytes[0][p*2+1]);
                 for (c = 0; c < 4; c++) {
-                    ByteIndex = p*12 + c*3;
-                    GroupNo = dp*12 + c*3;
-                    SGB_Palettes[ByteIndex  ] = SGB_SYSPalettes[GroupNo  ];
-                    SGB_Palettes[ByteIndex+1] = SGB_SYSPalettes[GroupNo+1];
-                    SGB_Palettes[ByteIndex+2] = SGB_SYSPalettes[GroupNo+2];
+                    ByteIndex = p*4 + c;
+                    GroupNo = dp*4 + c;
+                    SGB_Palettes[ByteIndex] = SGB_SYSPalettes[GroupNo];
                 }
             }
             break;
@@ -420,14 +338,12 @@ void GGBC::SGBCheckPackets() {
                 dp = 0x0800;
                 for (p = 0; p < 512; p++) {
                     for (c = 0; c < 4; c++) {
-                        GroupNo = p*12 + c*3;
-                        PalCol = (GLfloat)(VRAM[dp] & 0x1f);
-                        SGB_SYSPalettes[GroupNo  ] = PalCol / 31;
-                        PalCol = (GLfloat)((VRAM[dp++] & 0xe0) >> 5);
-                        PalCol += (GLfloat)((VRAM[dp] & 0x03) << 3);
-                        SGB_SYSPalettes[GroupNo+1] = PalCol / 31;
-                        PalCol = (GLfloat)((VRAM[dp++] & 0x7c) >> 2);
-                        SGB_SYSPalettes[GroupNo+2] = PalCol / 31;
+                        GroupNo = p*4 + c;
+						SGB_SYSPalettes[GroupNo] =
+							((VRAM[dp] & 0x1f) << 27)
+							| ((VRAM[dp] & 0xe0) << 13)
+							| ((VRAM[dp+1] & 0x03) << 22)
+							| ((VRAM[dp+1] & 0x7c) << 9);
                     }
                 }
             }
@@ -436,14 +352,12 @@ void GGBC::SGBCheckPackets() {
                 dp = 0;
                 for (p = 0; p < 512; p++) {
                     for (c = 0; c < 4; c++) {
-                        GroupNo = p*12 + c*3;
-                        PalCol = (GLfloat)(VRAM[dp] & 0x1f);
-                        SGB_SYSPalettes[GroupNo  ] = PalCol / 31;
-                        PalCol = (GLfloat)((VRAM[dp++] & 0xe0) >> 5);
-                        PalCol += (GLfloat)((VRAM[dp] & 0x03) << 3);
-                        SGB_SYSPalettes[GroupNo+1] = PalCol / 31;
-                        PalCol = (GLfloat)((VRAM[dp++] & 0x7c) >> 2);
-                        SGB_SYSPalettes[GroupNo+2] = PalCol / 31;
+						GroupNo = p * 4 + c;
+						SGB_SYSPalettes[GroupNo] =
+							((VRAM[dp] & 0x1f) << 27)
+							| ((VRAM[dp] & 0xe0) << 13)
+							| ((VRAM[dp + 1] & 0x03) << 22)
+							| ((VRAM[dp + 1] & 0x7c) << 9);
                     }
                 }
             }
