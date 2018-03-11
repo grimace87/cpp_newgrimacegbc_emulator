@@ -790,6 +790,7 @@ int GGBC::Ex(int ClocksAdd) {
                                 if (DrawToFrame1) {
                                     DrawToFrame1 = FALSE;
                                     SetEvent(hEventFrameReady);
+									OutputDebugString(L"Frame ready.");
                                 }
                                 StartClocksAcc -= ClocksAcc;
                                 ClocksAcc = 0;
@@ -828,8 +829,10 @@ int GGBC::Ex(int ClocksAdd) {
                                 IOPorts[0x000f] |= 0x02;
                             // Check whether the pixel buffer is free to draw to
                             int Temp = WaitForSingleObject(hEventFrameComplete, 0);
-                            if (Temp == WAIT_OBJECT_0)
-                                DrawToFrame1 = TRUE;
+							if (Temp == WAIT_OBJECT_0) {
+								DrawToFrame1 = TRUE;
+								OutputDebugString(L"Starting drawing to frame.");
+							}
                         }
                     }
                     break;
@@ -1428,14 +1431,17 @@ void GGBC::WriteIO (unsigned int addr, unsigned char data) {
                             ImgData[addr] = 0x000000ff;
                         DrawToFrame1 = FALSE;
                         SetEvent(hEventFrameReady);
+						OutputDebugString(L"Frame marked as ready.");
                     }
                 }
             }
             else {
                 if (IOPorts[0x40] < 0x80) {
                     // Draw to frame now if the memory is free
-                    if (WaitForSingleObject(hEventFrameComplete, 0) == WAIT_OBJECT_0)
-                        DrawToFrame1 = TRUE;
+					if (WaitForSingleObject(hEventFrameComplete, 0) == WAIT_OBJECT_0) {
+						DrawToFrame1 = TRUE;
+						OutputDebugString(L"LCD enabled - starting new frame.");
+					}
                 }
             }
             IOPorts[0x40] = data;

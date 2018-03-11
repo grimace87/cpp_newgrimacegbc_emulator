@@ -82,6 +82,7 @@ DWORD WINAPI GrimOpenGL::RunProc(LPVOID lpvParam) {
 
         // Wait for a draw event
         WaitForSingleObject(hEventFrameReady, INFINITE);
+		OutputDebugString(L"Rendering frame.\n");
 
         // Check for resize
         if (SetView) {

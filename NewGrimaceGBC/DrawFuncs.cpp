@@ -33,7 +33,7 @@ void GGBC::TranslatePaletteObj2(unsigned int PalData) {
 
 void GGBC::ReadLine_GB() {
     
-    // Get relevant parameters from staus registers and siuch:
+    // Get relevant parameters from status registers and such:
     const unsigned char LCDCtrl = IOPorts[0x40];
     const unsigned char LCDStatus = IOPorts[0x41];
     unsigned char ScrY = IOPorts[0x42];
@@ -55,7 +55,7 @@ void GGBC::ReadLine_GB() {
     unsigned int PixInc;
     unsigned int GetPix;
     
-    // Check if LCD is disabled or all elements (BG, window, sprites) are disabled:
+    // Check if LCD is disabled or all elements (BG, window, sprites) are disabled (write a black row if that's the case):
     if ((LCDCtrl & 0x80) == 0x00 || (LCDCtrl & 0x23) == 0x00) {
         DstPointer = &ImgData[LineNo*160];
         for (PixX = 0; PixX < 160; PixX++)
@@ -63,16 +63,16 @@ void GGBC::ReadLine_GB() {
         return;
     }
 
-    if ((LCDCtrl & 0x10) == 0x00) TileSetBase = 256; else TileSetBase = 0;
-    if ((LCDCtrl & 0x08) == 0x00) TileMapBase = 0x1800; else TileMapBase = 0x1c00;
+	TileSetBase = LCDCtrl & 0x10 ? 0x0000 : 0x0100;
+	TileMapBase = LCDCtrl & 0x08 ? 0x1c00 : 0x1800;
 
     // Check for BG enabled first:
-    if ((LCDCtrl & 0x01) != 0x00) {
+    if (LCDCtrl & 0x01) {
         
         // Set point to draw to
         DstPointer = &ImgData[160*LineNo];
 
-        // Set a starting point of tilemap coordinates
+        // Set starting point of VRAM data to read, in terms of pixel coordinates within the tile, and tile coordinates within the tilemap
         PixX = ScrX % 8;
         PixY = (LineNo + ScrY) % 8;
         TileX = ScrX / 8;
@@ -81,7 +81,7 @@ void GGBC::ReadLine_GB() {
         // Draw first 20 tiles (including partial leftmost tile)
         for (Offset = 0; Offset < 20; Offset++) {
 
-            // Get tile no
+            // Get tile no. and point to the tileset data to read
             TileNo = VRAM[TileMapBase + 32*TileY + TileX];
             if (TileNo < 127) TileNo += TileSetBase;
             TilesetPointer = &TileSet[TileNo*64 + 8*PixY + PixX];
@@ -99,7 +99,7 @@ void GGBC::ReadLine_GB() {
         }
         
         // Draw partial 21st tile. Find out how many pixels of it to draw.
-        Max = (256 - ScrX) % 8;
+        Max = ScrX % 8;
 
         // Get tile no
         TileNo = VRAM[TileMapBase + 32*TileY + TileX];
@@ -117,7 +117,7 @@ void GGBC::ReadLine_GB() {
     // Check for window enabled first, and check for window onscreen:
     ScrX = IOPorts[0x4b];
     ScrY = IOPorts[0x4a];
-    if ((LCDCtrl & 0x40) == 0x00) TileMapBase = 0x1800; else TileMapBase = 0x1c00;
+    TileMapBase = LCDCtrl & 0x40 ? 0x1c00 : 0x1800;
     if (((LCDCtrl & 0x20) != 0x00) && (ScrX < 167) && (ScrY <= LineNo)) {
         
         // Subtract 7 from window X pos
@@ -126,7 +126,7 @@ void GGBC::ReadLine_GB() {
         // Set point to draw to
         DstPointer = &ImgData[160*LineNo + ScrX];
 
-        // Set a starting point of tilemap coordinates
+		// Set starting point of VRAM data to read, in terms of pixel coordinates within the tile, and tile coordinates within the tilemap
         PixX = 0;
         PixY = (LineNo - ScrY) % 8;
         TileX = 0;
@@ -135,7 +135,7 @@ void GGBC::ReadLine_GB() {
         // Check how many complete tiles to draw
         Max = (160 - ScrX) / 8;
 
-        // Draw first 20 tiles (including partial leftmost tile)
+        // Draw all the complete tiles until the end of the line
         for (Offset = 0; Offset < Max; Offset++) {
 
             // Get tile no
@@ -143,7 +143,7 @@ void GGBC::ReadLine_GB() {
             if (TileNo < 127) TileNo += TileSetBase;
             TilesetPointer = &TileSet[TileNo*64 + 8*PixY + PixX];
             
-            // Draw up to 8 pixels of this tile
+            // Draw the 8 pixels of this tile
             while (PixX < 8) {
                 *DstPointer++ = TranslatedPaletteBG[*TilesetPointer++];
                 PixX++;
@@ -156,7 +156,7 @@ void GGBC::ReadLine_GB() {
         }
         
         // Draw partial last tile. Find out how many pixels of it to draw.
-        Max = (256 - ScrX) % 8;
+        Max = ScrX % 8;
 
         // Get tile no
         TileNo = VRAM[TileMapBase + 32*TileY + TileX];
@@ -172,56 +172,73 @@ void GGBC::ReadLine_GB() {
     }
     
     // Check for sprites enabled first:
-    if ((LCDCtrl & 0x02) != 0x00) {
+    if (LCDCtrl & 0x02) {
         
-        // Draw first 20 tiles (including partial leftmost tile)
-        for (Offset = 156; Offset < 160; Offset -= 4) {
+		const unsigned char LargeSprites = LCDCtrl & 0x04;
 
-            // Get coords and flags and stuff
+        // Draw each sprite that is visible
+        for (Offset = 156; Offset < 160; Offset -= 4) {
+			
+            // Get coords check if off-screen
             ScrY = OAM[Offset];
-            if (ScrY >= 160) continue;
+			if (ScrY == 0) continue;
+            if (ScrY > 159) continue;
             ScrX = OAM[Offset+1];
-            if (ScrX > 160) continue;
+			if (ScrX == 0) continue;
+            if (ScrX > 167) continue;
+
+			// Check if the current scan line would pass through an 8x16 sprite
             if (LineNo + 16 < ScrY) continue;
             if (LineNo >= ScrY) continue;
             TileNo = OAM[Offset+2];
             Flags = OAM[Offset+3];
             
-            // Check sprite size
-            if ((LCDCtrl & 0x04) != 0) {
-                // 8x16 sprites
-                if (LineNo + 8 >= ScrY) TileNo  |= 0x01;
+            // Check sprite size, and accordingly re-assess visibility and adjust tilemap index
+            if (LargeSprites) {
+                if (LineNo + 8 >= ScrY) TileNo |= 0x01;
                 else TileNo &= 0xfe;
-                PixY = (LineNo + 16 - ScrY) % 8;
+                
             }
-            else {
-                // 8x8 sprites
-                if (LineNo + 8 >= ScrY) continue;
-                PixY = LineNo + 16 - ScrY;
-            }
-            
-            if ((Flags & 0x10) != 0) PaletteOffset = 4;
-            else PaletteOffset = 0;
-            
-            // Adjust coordinates
-            if ((Flags & 0x10) != 0) {
+            else if (LineNo + 8 >= ScrY) continue;
 
-            }
+			// Get pixel row within tile that will be drawn
+            PixY = (LineNo + 16 - ScrY) % 8;
+            
+			// Set which palette to draw with
+            PaletteOffset = Flags & 0x10 ? 4 : 0;
+			GLuint ColourZero = TranslatedPaletteBG[0];
+            
+            // Get first pixel in tile row to draw, plus how many pixels to draw, and adjust the starting point to write to in the image
             if (ScrX < 8) {
                 PixX = 8 - ScrX;
+                Max = ScrX;
                 ScrX = 0;
-                Max = 8;
             }
             else if (ScrX > 160) {
                 PixX = 0;
-                ScrX -= 8;
                 Max = 168 - ScrX;
+                ScrX -= 8;
             }
             else {
                 PixX = 0;
-                ScrX -= 8;
                 Max = 8;
+                ScrX -= 8;
             }
+
+			// Adjust X if horizontally flipping
+			int TilesetPointerDirection;
+			if (Flags & 0x20) {
+				PixX = 7 - PixX;
+				TilesetPointerDirection = -1;
+			}
+			else TilesetPointerDirection = 1;
+
+			// Adjust Y if vertically flipping
+			if (Flags & 0x40)
+				PixY = 7 - PixY;
+
+			// Get priority flag
+			unsigned int BackgroundPriority = Flags & 0x80;
 
             // Set point to draw to
             DstPointer = &ImgData[160*LineNo + ScrX];
@@ -229,16 +246,21 @@ void GGBC::ReadLine_GB() {
             // Get pointer to tile data
             TilesetPointer = &TileSet[TileNo*64 + 8*PixY + PixX];
             
-            // Get number of pixels to be drawn
-
-
-            // Draw up to 8 pixels of this tile
+            // Draw up to 8 pixels of this tile (skipping over transparent pixels with palette index 0, or if obscured by the background)
+			PixX = 0;
             while (PixX < Max) {
-                GetPix = *TilesetPointer++;
-                if (GetPix > 0) *DstPointer++ = TranslatedPaletteObj[GetPix + PaletteOffset];
-                else DstPointer++;
+                GetPix = *TilesetPointer;
+				TilesetPointer += TilesetPointerDirection;
+				if (GetPix > 0) {
+					if (BackgroundPriority) {
+						if (*DstPointer == ColourZero)
+							*DstPointer = TranslatedPaletteObj[GetPix + PaletteOffset];
+					}
+					else *DstPointer = TranslatedPaletteObj[GetPix + PaletteOffset];
+				}
+                DstPointer++;
                 PixX++;
-            }
+			}
             
         }
         
